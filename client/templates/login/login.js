@@ -8,15 +8,16 @@ Template.login.events({
     if ($("#phone").prop('disabled')) { // Only if we sent a verification code already
       $("#phone").prop('disabled', false);
       $("#code").val();
-      $("#name").show();
+      $("#name").prop('disabled', false);
+      $(".field-name").show();
       $(".phone-container").addClass("entering-phone").removeClass("phone-entered");
     }
   },
   'submit .form-phone': function() {
     phone = $("#phone").val();
 
-    Meteor.sendVerificationCode(phone, function(accountExists) {
-      if (accountExists instanceof Meteor.Error) {
+    Meteor.sendVerificationCode(phone, function(err, accountExists) {
+      if (err) {
         $(".form-phone .message").show().text("Error sending verification text message");
       } else {
         // If successful show the next step
@@ -25,7 +26,8 @@ Template.login.events({
         $(".phone-container").addClass('phone-entered').removeClass('entering-phone');
         if (accountExists) {
           // Hide the name because there already is an account
-          $("#name").hide();
+          $("#name").prop('disabled', true);
+          $(".field-name").hide();
           $("#code").focus();
         } else {
           $("#name").focus();

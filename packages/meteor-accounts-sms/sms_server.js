@@ -16,11 +16,14 @@ Meteor.methods({
 Accounts.registerLoginHandler('sms', function (options) {
   if (!options.sms) return;
 
+  // Remove name before checking
+  name = options.name;
+  delete options.name
+
   check(options, {
     sms: Boolean,
     phone: MatchEx.String(1),
-    code: MatchEx.String(1),
-    name: MatchEx.String(1)
+    code: MatchEx.String(1)
   });
 
   if (Accounts.sms.verifyCode(options.phone, options.code)) {
@@ -29,7 +32,8 @@ Accounts.registerLoginHandler('sms', function (options) {
     if (user) {
       user_id = user._id
     } else {
-      user_id = Accounts.insertUserDoc({}, {services: {phone: {number: options.phone}}, profile: {name: options.name}});
+      check(name, MatchEx.String(1));
+      user_id = Accounts.insertUserDoc({}, {services: {phone: {number: options.phone}}, profile: {name: name}});
     }
     return {userId: user_id}
   } else {
