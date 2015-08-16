@@ -18,7 +18,7 @@ Template.login.events({
     Meteor.sendVerificationCode(phone, function(accountExists) {
       if (accountExists instanceof Meteor.Error) {
         $(".form-phone .message").show().text("Error sending verification text message");
-      } else { 
+      } else {
         // If successful show the next step
         $(".form-phone .message").hide().text("");
         $("#phone").prop('disabled', true);

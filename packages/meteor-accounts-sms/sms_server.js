@@ -1,4 +1,5 @@
 var codes = new Mongo.Collection('meteor_accounts_sms');
+Meteor.users._ensureIndex({'services.phone.number': 1}, {unique: true});
 
 Meteor.methods({
   'accounts-sms.sendVerificationCode': function (phone) {
@@ -7,7 +8,7 @@ Meteor.methods({
     Accounts.sms.sendVerificationCode(phone);
 
     // Look for existing user and return true if there is one
-    return (Meteor.users.find({number: phone}).count == 1);
+    return (Meteor.users.find({'services.phone.number': phone}).count() == 1);
   }
 });
 
@@ -24,11 +25,11 @@ Accounts.registerLoginHandler('sms', function (options) {
 
   if (Accounts.sms.verifyCode(options.phone, options.code)) {
     // Look for local user
-    user = Meteor.users.findOne({number: options.phone});
+    user = Meteor.users.findOne({'services.phone.number': options.phone});
     if (user) {
       user_id = user._id
     } else {
-      user_id = Accounts.insertUserDoc({number: options.phone, profile: {name: options.name}});
+      user_id = Accounts.insertUserDoc({}, {services: {phone: {number: options.phone}}, profile: {name: options.name}});
     }
     return {userId: user_id}
   } else {
